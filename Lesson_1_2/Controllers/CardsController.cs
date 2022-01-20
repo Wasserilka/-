@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Lesson_1_2.Interfaces;
 using Lesson_1_2.Models;
 using Lesson_1_2.Repositories;
+using Lesson_1_2.Responses;
 using System;
 using AutoMapper;
 using System.Collections.Generic;
@@ -21,6 +22,32 @@ namespace Lesson_1_2.Controllers
         {
             Mapper = mapper;
             Repository = repository;
+        }
+
+        [HttpGet("get/all")]
+        public IActionResult GetAll()
+        {
+            var cards = Repository.GetAll();
+
+            var response = new GetAllCardsResponse()
+            {
+                Cards = new List<CardDto>()
+            };
+
+            foreach (var card in cards)
+            {
+                response.Cards.Add(Mapper.Map<CardDto>(card));
+            }
+
+            return Ok(response);
+        }
+
+        [HttpPost("create/{number}/{name}/{date}/{type}")]
+        public IActionResult Create([FromRoute] long number, [FromRoute] string name, [FromRoute] DateTimeOffset date, [FromRoute] string type)
+        {
+            Repository.Create(new Card { Number = number, HolderName = name, ExpirationDate = date, Type = type });
+
+            return Ok();
         }
     }
 }

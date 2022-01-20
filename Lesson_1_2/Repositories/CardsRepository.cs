@@ -27,7 +27,7 @@ namespace Lesson_1_2.Repositories
         {
             using (var connection = new ConnectionManager().GetOpenedConnection())
             {
-                return connection.Query<Card>("SELECT Id, Number, HolderName, ExpirationDate, Type FROM cards").AsList();
+                return connection.Query<Card>("SELECT id, number, holdername, expirationdate, type FROM cards").AsList();
             }
         }
 
@@ -35,8 +35,8 @@ namespace Lesson_1_2.Repositories
         {
             using (var connection = new ConnectionManager().GetOpenedConnection())
             {
-                connection.Query<Card>("INSERT INTO cards(number, name, date, type) VALUES(@number, @name, @date, @type)",
-                    new { number = card.Number, name = card.HolderName, date = card.ExpirationDate.ToUnixTimeSeconds(), type = card.Type });
+                connection.Query<Card>("INSERT INTO cards(number, holdername, expirationdate, type) VALUES(@number, @holdername, @expirationdate, @type)",
+                    new { number = card.Number, holdername = card.HolderName, expirationdate = card.ExpirationDate.ToUnixTimeSeconds(), type = card.Type });
             }
         }
 
