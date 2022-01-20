@@ -1,13 +1,8 @@
-﻿#nullable disable
-using Microsoft.AspNetCore.Mvc;
-using Lesson_1_2.Interfaces;
+﻿using Microsoft.AspNetCore.Mvc;
 using Lesson_1_2.Models;
 using Lesson_1_2.Repositories;
 using Lesson_1_2.Responses;
-using System;
 using AutoMapper;
-using System.Collections.Generic;
-using Microsoft.Extensions.Logging;
 
 namespace Lesson_1_2.Controllers
 {
@@ -42,10 +37,41 @@ namespace Lesson_1_2.Controllers
             return Ok(response);
         }
 
+        [HttpGet("get/{id}")]
+        public IActionResult GetById([FromRoute] int id)
+        {
+            var card = Repository.GetById(id);
+
+            var response = new GetAllCardsResponse()
+            {
+                Cards = new List<CardDto>()
+            };
+
+            response.Cards.Add(Mapper.Map<CardDto>(card));
+
+            return Ok(response);
+        }
+
         [HttpPost("create/{number}/{name}/{date}/{type}")]
         public IActionResult Create([FromRoute] long number, [FromRoute] string name, [FromRoute] DateTimeOffset date, [FromRoute] string type)
         {
             Repository.Create(new Card { Number = number, HolderName = name, ExpirationDate = date, Type = type });
+
+            return Ok();
+        }
+
+        [HttpPut("update/{id}/{number}/{name}/{date}/{type}")]
+        public IActionResult Update([FromRoute] int id, [FromRoute] long number, [FromRoute] string name, [FromRoute] DateTimeOffset date, [FromRoute] string type)
+        {
+            Repository.Update(id, new Card { Number = number, HolderName = name, ExpirationDate = date, Type = type });
+
+            return Ok();
+        }
+
+        [HttpDelete("delete/{id}")]
+        public IActionResult Delete([FromRoute] int id)
+        {
+            Repository.Delete(id);
 
             return Ok();
         }

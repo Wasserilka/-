@@ -1,17 +1,7 @@
-﻿using Lesson_1_2;
-using Lesson_1_2.Controllers;
-using Lesson_1_2.Repositories;
-using Lesson_1_2.Models;
+﻿using Lesson_1_2.Repositories;
 using Lesson_1_2.Interfaces;
 using AutoMapper;
-using FluentMigrator;
-using FluentMigrator.Postgres;
-using FluentMigrator.Runner;
-using Npgsql;
-using System;
-using System.Collections.Generic;
 using Dapper;
-using System.Data.SqlClient;
 
 namespace Lesson_1_2
 {
