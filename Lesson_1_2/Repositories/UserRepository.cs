@@ -23,7 +23,7 @@ namespace Lesson_1_2.Repositories
         {
             using (var connection = new ConnectionManager().GetOpenedConnection())
             {
-                var result = connection.QueryFirstOrDefault<User>("SELECT id, password, refreshtoken FROM users WHERE login=@login",
+                var result = connection.QueryFirstOrDefault<User>("SELECT id, password FROM users WHERE login=@login",
                     new { login = user.Login });
                 if (result.Password == user.Password)
                 {
@@ -37,8 +37,8 @@ namespace Lesson_1_2.Repositories
         {
             using (var connection = new ConnectionManager().GetOpenedConnection())
             {
-                connection.QueryFirstOrDefault<Card>("UPDATE tokens SET token=@token, expirationdate=@expirationdate WHERE userid=@id",
-                    new { id = response.Id, token = response.RefreshToken.Token, expirationdate = response.RefreshToken.Expires.ToUnixTimeSeconds() });
+                connection.Execute("UPDATE tokens SET token=@token, expirationdate=@expirationdate WHERE userid=@userid",
+                    new { userid = response.Id, token = response.RefreshToken.Token, expirationdate = response.RefreshToken.Expires.ToUnixTimeSeconds() });
             }
         }
 

@@ -20,6 +20,7 @@ namespace Lesson_1_2.Security
         {
             var authResponse = new AuthResponse();
 
+            authResponse.Id = id;
             authResponse.Token = GenerateJwtToken(id, 15);
             var refreshToken = GenerateRefreshToken(id, 360);
             authResponse.RefreshToken = refreshToken;
