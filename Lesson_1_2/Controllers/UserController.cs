@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using System;
 using Lesson_1_2.Security;
+using Lesson_1_2.Models;
+using Lesson_1_2.Repositories;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Timesheets.Controllers
@@ -11,9 +13,20 @@ namespace Timesheets.Controllers
     public class UserController : ControllerBase
     {
         private IAuthService LoginService;
-        public UserController(IAuthService loginService)
+        private IUserRepository Repository;
+        public UserController(IAuthService loginService, IUserRepository userRepository)
         {
             LoginService = loginService;
+            Repository = userRepository;
+        }
+
+        [AllowAnonymous]
+        [HttpPost("register")]
+        public IActionResult Register([FromQuery] string login, string password)
+        {
+            Repository.Signup(new User { Password = password, Login = login });
+
+            return Ok();
         }
 
         [AllowAnonymous]

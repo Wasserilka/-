@@ -23,7 +23,10 @@ namespace Lesson_1_2
         {
             services.AddControllers();
             services.AddSingleton<IConnectionManager, ConnectionManager>();
+
             services.AddSingleton<ICardsRepository, CardsRepository>();
+            services.AddSingleton<IUserRepository, UserRepository>();
+
             services.AddSingleton<IAuthService, AuthService>();
             services.AddCors();
 
