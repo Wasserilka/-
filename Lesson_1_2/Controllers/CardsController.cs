@@ -2,11 +2,13 @@
 using Lesson_1_2.Models;
 using Lesson_1_2.Repositories;
 using Lesson_1_2.Responses;
+using Microsoft.AspNetCore.Authorization;
 using AutoMapper;
 
 namespace Lesson_1_2.Controllers
 {
     [Route("api/cards")]
+    [Authorize]
     [ApiController]
     public class CardsController : ControllerBase
     {

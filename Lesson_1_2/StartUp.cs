@@ -1,7 +1,12 @@
 ﻿using Lesson_1_2.Repositories;
 using Lesson_1_2.Interfaces;
+using Lesson_1_2.Security;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Dapper;
+using System.Text;
+using Microsoft.OpenApi.Models;
 
 namespace Lesson_1_2
 {
@@ -19,6 +24,26 @@ namespace Lesson_1_2
             services.AddControllers();
             services.AddSingleton<IConnectionManager, ConnectionManager>();
             services.AddSingleton<ICardsRepository, CardsRepository>();
+            services.AddSingleton<ILoginService, LoginService>();
+
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+                .AddJwtBearer(x =>
+                {
+                    x.RequireHttpsMetadata = false;
+                    x.SaveToken = true;
+                    x.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(LoginService.SecretCode)),
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ClockSkew = TimeSpan.Zero
+                    };
+                });
 
             using (var connection = new ConnectionManager().GetOpenedConnection())
             {
@@ -47,6 +72,8 @@ namespace Lesson_1_2
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
