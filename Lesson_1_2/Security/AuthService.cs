@@ -8,8 +8,7 @@ namespace Lesson_1_2.Security
     public interface IAuthService
     {
         AuthResponse Authenticate(int id);
-
-        string RefreshToken(string token);
+        RefreshToken RefreshToken(int id);
     }
 
     internal sealed class AuthService : IAuthService
@@ -28,26 +27,15 @@ namespace Lesson_1_2.Security
             return authResponse;
         }
 
-        public string RefreshToken(string token)
+        public RefreshToken RefreshToken(int id)
         {
-            //int i = 0;
-            //foreach (KeyValuePair<string, AuthResponse> pair in _users)
-            //{
-            //    i++;
-            //    if (string.CompareOrdinal(pair.Value.LatestRefreshToken.Token, token) == 0
-            //        && pair.Value.LatestRefreshToken.IsExpired is false)
-            //    {
-            //        pair.Value.LatestRefreshToken = GenerateRefreshToken(i, 360);
-            //        return pair.Value.LatestRefreshToken.Token;
-            //    }
-            //}
-            return string.Empty;
+            return GenerateRefreshToken(id, 360);
         }
 
         public RefreshToken GenerateRefreshToken(int id, int minutes)
         {
             RefreshToken refreshToken = new RefreshToken();
-            refreshToken.Expires = DateTime.Now.AddMinutes(minutes);
+            refreshToken.ExpirationDate = DateTime.Now.AddMinutes(minutes);
             refreshToken.Token = GenerateJwtToken(id, minutes);
             return refreshToken;
         }

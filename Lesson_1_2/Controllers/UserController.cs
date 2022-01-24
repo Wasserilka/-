@@ -33,14 +33,6 @@ namespace Timesheets.Controllers
         [HttpPost("authenticate")]
         public IActionResult Authenticate([FromQuery] string login, string password)
         {
-            //TokenResponse token = LoginService.Authenticate(user, password);
-            //if (token is null)
-            //{
-            //    return BadRequest(new { message = "Username or password is incorrect" });
-            //}
-            //SetTokenCookie(token.RefreshToken);
-            //return Ok(token);
-
             var result = Repository.Signin(new User { Password = password, Login = login });
             if (result != null)
             {
@@ -61,13 +53,14 @@ namespace Timesheets.Controllers
         public IActionResult Refresh()
         {
             string oldRefreshToken = Request.Cookies["refreshToken"];
-            string newRefreshToken = AuthService.RefreshToken(oldRefreshToken);
-
-            if (string.IsNullOrWhiteSpace(newRefreshToken))
+            var RefreshToken = Repository.GetRefreshToken(oldRefreshToken);
+            if (RefreshToken.IsExpired)
             {
                 return Unauthorized(new { message = "Invalid token" });
             }
-            SetTokenCookie(newRefreshToken);
+            var newRefreshToken = AuthService.RefreshToken(RefreshToken.Id);
+            Repository.UpdateToken(RefreshToken.Id, newRefreshToken);
+            SetTokenCookie(newRefreshToken.Token);
             return Ok(newRefreshToken);
         }
 

@@ -10,6 +10,8 @@ namespace Lesson_1_2.Repositories
         User Signin(User user);
         void Signup(User user);
         void UpdateToken(AuthResponse response);
+        void UpdateToken(int id, RefreshToken token);
+        RefreshToken GetRefreshToken(string oldRefreshmentToken);
     }
 
     public class UserRepository : IUserRepository
@@ -38,7 +40,16 @@ namespace Lesson_1_2.Repositories
             using (var connection = new ConnectionManager().GetOpenedConnection())
             {
                 connection.Execute("UPDATE tokens SET token=@token, expirationdate=@expirationdate WHERE userid=@userid",
-                    new { userid = response.Id, token = response.RefreshToken.Token, expirationdate = response.RefreshToken.Expires.ToUnixTimeSeconds() });
+                    new { userid = response.Id, token = response.RefreshToken.Token, expirationdate = response.RefreshToken.ExpirationDate.ToUnixTimeSeconds() });
+            }
+        }
+
+        public void UpdateToken(int id, RefreshToken token)
+        {
+            using (var connection = new ConnectionManager().GetOpenedConnection())
+            {
+                connection.Execute("UPDATE tokens SET token=@token, expirationdate=@expirationdate WHERE id=@id",
+                    new { id =id, token = token.Token, expirationdate = token.ExpirationDate.ToUnixTimeSeconds() });
             }
         }
 
@@ -52,6 +63,15 @@ namespace Lesson_1_2.Repositories
                     new { login = user.Login });
                 connection.Execute("INSERT INTO tokens(userid) VALUES(@userid)",
                     new { userid = id });
+            }
+        }
+
+        public RefreshToken GetRefreshToken(string oldRefreshmentToken)
+        {
+            using (var connection = new ConnectionManager().GetOpenedConnection())
+            {
+                return connection.QueryFirstOrDefault<RefreshToken>("SELECT id, token, expirationdate FROM tokens WHERE token=@oldtoken",
+                    new { oldtoken = oldRefreshmentToken });
             }
         }
     }

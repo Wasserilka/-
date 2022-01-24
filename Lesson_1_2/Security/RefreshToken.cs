@@ -3,11 +3,10 @@
 namespace Lesson_1_2.Security
 {
     public class RefreshToken
-    {
+    { 
+        public int Id { get; set; }
         public string Token { get; set; }
-
-        public DateTimeOffset Expires { get; set; }
-
-        public bool IsExpired => DateTimeOffset.UtcNow >= Expires;
+        public DateTimeOffset ExpirationDate { get; set; }
+        public bool IsExpired => DateTimeOffset.UtcNow >= ExpirationDate;
     }
 }
