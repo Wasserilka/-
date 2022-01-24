@@ -5,14 +5,14 @@ using System.Security.Claims;
 
 namespace Lesson_1_2.Security
 {
-    public interface ILoginService
+    public interface IAuthService
     {
         TokenResponse Authenticate(string user, string password);
 
         string RefreshToken(string token);
     }
 
-    internal sealed class LoginService : ILoginService
+    internal sealed class AuthService : IAuthService
     {
         private IDictionary<string, AuthResponse> _users = new Dictionary<string, AuthResponse>()
         {

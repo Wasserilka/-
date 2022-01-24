@@ -24,7 +24,7 @@ namespace Lesson_1_2
             services.AddControllers();
             services.AddSingleton<IConnectionManager, ConnectionManager>();
             services.AddSingleton<ICardsRepository, CardsRepository>();
-            services.AddSingleton<ILoginService, LoginService>();
+            services.AddSingleton<IAuthService, AuthService>();
             services.AddCors();
 
             services.AddAuthentication(x =>
@@ -39,7 +39,7 @@ namespace Lesson_1_2
                     x.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(LoginService.SecretCode)),
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(AuthService.SecretCode)),
                         ValidateIssuer = false,
                         ValidateAudience = false,
                         ClockSkew = TimeSpan.Zero
@@ -49,6 +49,7 @@ namespace Lesson_1_2
             using (var connection = new ConnectionManager().GetOpenedConnection())
             {
                 connection.Execute("CREATE TABLE IF NOT EXISTS cards(id SERIAL PRIMARY KEY, number BIGINT, holdername TEXT, expirationdate BIGINT, type TEXT)");
+                connection.Execute("CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY, login TEXT, password TEXT)");
             }
 
             var mapperConfiguration = new MapperConfiguration(mp => mp.AddProfile(new MapperProfile()));

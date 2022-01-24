@@ -8,10 +8,10 @@ namespace Timesheets.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class LoginController : ControllerBase
+    public class UserController : ControllerBase
     {
-        private ILoginService LoginService;
-        public LoginController(ILoginService loginService)
+        private IAuthService LoginService;
+        public UserController(IAuthService loginService)
         {
             LoginService = loginService;
         }
