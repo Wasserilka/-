@@ -12,11 +12,11 @@ namespace Timesheets.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private IAuthService LoginService;
+        private IAuthService AuthService;
         private IUserRepository Repository;
         public UserController(IAuthService loginService, IUserRepository userRepository)
         {
-            LoginService = loginService;
+            AuthService = loginService;
             Repository = userRepository;
         }
 
@@ -31,15 +31,29 @@ namespace Timesheets.Controllers
 
         [AllowAnonymous]
         [HttpPost("authenticate")]
-        public IActionResult Authenticate([FromQuery] string user, string password)
+        public IActionResult Authenticate([FromQuery] string login, string password)
         {
-            TokenResponse token = LoginService.Authenticate(user, password);
-            if (token is null)
+            //TokenResponse token = LoginService.Authenticate(user, password);
+            //if (token is null)
+            //{
+            //    return BadRequest(new { message = "Username or password is incorrect" });
+            //}
+            //SetTokenCookie(token.RefreshToken);
+            //return Ok(token);
+
+            var result = Repository.Signin(new User { Password = password, Login = login });
+            if (result != null)
+            {
+                var authResponse = AuthService.Authenticate(result.Id);
+                SetTokenCookie(authResponse.RefreshToken.Token);
+                Repository.UpdateToken(authResponse);
+                var token = new TokenResponse { Token = authResponse.Token, RefreshToken = authResponse.RefreshToken.Token };
+                return Ok(token);
+            }
+            else
             {
                 return BadRequest(new { message = "Username or password is incorrect" });
             }
-            SetTokenCookie(token.RefreshToken);
-            return Ok(token);
         }
 
         [Authorize]
@@ -47,7 +61,7 @@ namespace Timesheets.Controllers
         public IActionResult Refresh()
         {
             string oldRefreshToken = Request.Cookies["refreshToken"];
-            string newRefreshToken = LoginService.RefreshToken(oldRefreshToken);
+            string newRefreshToken = AuthService.RefreshToken(oldRefreshToken);
 
             if (string.IsNullOrWhiteSpace(newRefreshToken))
             {

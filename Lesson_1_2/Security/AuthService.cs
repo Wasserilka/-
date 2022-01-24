@@ -7,56 +7,39 @@ namespace Lesson_1_2.Security
 {
     public interface IAuthService
     {
-        TokenResponse Authenticate(string user, string password);
+        AuthResponse Authenticate(int id);
 
         string RefreshToken(string token);
     }
 
     internal sealed class AuthService : IAuthService
     {
-        private IDictionary<string, AuthResponse> _users = new Dictionary<string, AuthResponse>()
-        {
-            {"test", new AuthResponse() { Password = "test"}}
-        };
-
         public const string SecretCode = "some secret_code";
 
-        public TokenResponse Authenticate(string user, string password)
+        public AuthResponse Authenticate(int id)
         {
-            if (string.IsNullOrWhiteSpace(user) || string.IsNullOrWhiteSpace(password))
-            {
-                return null;
-            }
-            TokenResponse tokenResponse = new TokenResponse();
-            int i = 0;
-            foreach (KeyValuePair<string, AuthResponse> pair in _users)
-            {
-                i++;
-                if (string.CompareOrdinal(pair.Key, user) == 0 && string.CompareOrdinal(pair.Value.Password, password) == 0)
-                {
-                    tokenResponse.Token = GenerateJwtToken(i, 15);
-                    RefreshToken refreshToken = GenerateRefreshToken(i, 360);
-                    pair.Value.LatestRefreshToken = refreshToken;
-                    tokenResponse.RefreshToken = refreshToken.Token;
-                    return tokenResponse;
-                }
-            }
-            return null;
+            var authResponse = new AuthResponse();
+
+            authResponse.Token = GenerateJwtToken(id, 15);
+            var refreshToken = GenerateRefreshToken(id, 360);
+            authResponse.RefreshToken = refreshToken;
+
+            return authResponse;
         }
 
         public string RefreshToken(string token)
         {
-            int i = 0;
-            foreach (KeyValuePair<string, AuthResponse> pair in _users)
-            {
-                i++;
-                if (string.CompareOrdinal(pair.Value.LatestRefreshToken.Token, token) == 0
-                    && pair.Value.LatestRefreshToken.IsExpired is false)
-                {
-                    pair.Value.LatestRefreshToken = GenerateRefreshToken(i, 360);
-                    return pair.Value.LatestRefreshToken.Token;
-                }
-            }
+            //int i = 0;
+            //foreach (KeyValuePair<string, AuthResponse> pair in _users)
+            //{
+            //    i++;
+            //    if (string.CompareOrdinal(pair.Value.LatestRefreshToken.Token, token) == 0
+            //        && pair.Value.LatestRefreshToken.IsExpired is false)
+            //    {
+            //        pair.Value.LatestRefreshToken = GenerateRefreshToken(i, 360);
+            //        return pair.Value.LatestRefreshToken.Token;
+            //    }
+            //}
             return string.Empty;
         }
 

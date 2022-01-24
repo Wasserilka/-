@@ -7,8 +7,10 @@ namespace Lesson_1_2.Security
 {
     public class AuthResponse
     {
-        public string Password { get; set; }
+        public int Id { get; set; }
 
-        public RefreshToken LatestRefreshToken { get; set; }
+        public RefreshToken RefreshToken { get; set; }
+
+        public string Token { get; set; }
     }
 }

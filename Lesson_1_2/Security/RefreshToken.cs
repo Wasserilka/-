@@ -6,8 +6,8 @@ namespace Lesson_1_2.Security
     {
         public string Token { get; set; }
 
-        public DateTime Expires { get; set; }
+        public DateTimeOffset Expires { get; set; }
 
-        public bool IsExpired => DateTime.UtcNow >= Expires;
+        public bool IsExpired => DateTimeOffset.UtcNow >= Expires;
     }
 }

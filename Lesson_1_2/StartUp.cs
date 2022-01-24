@@ -53,6 +53,7 @@ namespace Lesson_1_2
             {
                 connection.Execute("CREATE TABLE IF NOT EXISTS cards(id SERIAL PRIMARY KEY, number BIGINT, holdername TEXT, expirationdate BIGINT, type TEXT)");
                 connection.Execute("CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY, login TEXT, password TEXT)");
+                connection.Execute("CREATE TABLE IF NOT EXISTS tokens(id SERIAL PRIMARY KEY, userid INTEGER, token TEXT, expirationdate BIGINT)");
             }
 
             var mapperConfiguration = new MapperConfiguration(mp => mp.AddProfile(new MapperProfile()));
