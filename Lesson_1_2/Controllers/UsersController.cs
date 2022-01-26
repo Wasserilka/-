@@ -27,6 +27,14 @@ namespace Timesheets.Controllers
         [HttpPost("register")]
         public IActionResult Register([FromQuery] string login, string password)
         {
+            var loginExistenceRequest = new LoginExistenceRequest(login);
+            var loginExistenceResult = Repository.IsLoginExists(loginExistenceRequest);
+
+            if (loginExistenceResult)
+            {
+                return BadRequest(new { message = "Login already exists" });
+            }
+
             var request = new RegisterUserRequest(login, password);
 
             Repository.Register(request);
@@ -39,19 +47,22 @@ namespace Timesheets.Controllers
         public IActionResult Authenticate([FromQuery] string login, string password)
         {
             var request = new AuthenticateUserRequest(login, password);
-            var result = Repository.Authenticate(request);
+            var authResult = Repository.Authenticate(request);
 
-            if (result != 0)
+            if (authResult)
             {
-                var authResponse = AuthService.Authenticate(result);
+                var authResponse = AuthService.Authenticate(login);
                 SetTokenCookie(authResponse.RefreshToken.Token);
-                Repository.UpdateToken(authResponse);
-                var token = new TokenResponse { Token = authResponse.Token, RefreshToken = authResponse.RefreshToken.Token };
+
+                var updateTokenRequest = new UpdateTokenRequest(login, authResponse.RefreshToken);
+                Repository.UpdateToken(updateTokenRequest);
+
+                var token = new TokenResponse (authResponse.Token, authResponse.RefreshToken.Token);
                 return Ok(token);
             }
             else
             {
-                return BadRequest(new { message = "Username or password is incorrect" });
+                return BadRequest(new { message = "Login or password is incorrect" });
             }
         }
 
@@ -59,14 +70,18 @@ namespace Timesheets.Controllers
         [HttpPost("refresh-token")]
         public IActionResult Refresh()
         {
-            string oldRefreshToken = Request.Cookies["refreshToken"];
-            var RefreshToken = Repository.GetRefreshToken(oldRefreshToken);
-            if (RefreshToken.IsExpired)
+            var request = new GetRefreshTokenRequest(Request.Cookies["refreshToken"]);
+            var oldTokenResponse = Repository.GetRefreshToken(request);
+
+            if (oldTokenResponse.IsExpired)
             {
                 return Unauthorized(new { message = "Invalid token" });
             }
-            var newRefreshToken = AuthService.RefreshToken(RefreshToken.Id);
-            Repository.UpdateToken(RefreshToken.Id, newRefreshToken);
+
+            var newRefreshToken = AuthService.RefreshToken(oldTokenResponse.Login);
+            var updateTokenRequest = new UpdateTokenRequest(oldTokenResponse.Login, newRefreshToken);
+            Repository.UpdateToken(updateTokenRequest);
+
             SetTokenCookie(newRefreshToken.Token);
             return Ok(newRefreshToken);
         }

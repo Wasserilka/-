@@ -1,4 +1,6 @@
-﻿namespace Lesson_1_2.Requests
+﻿using Lesson_1_2.Security;
+
+namespace Lesson_1_2.Requests
 {
     public class AuthenticateUserRequest
     {

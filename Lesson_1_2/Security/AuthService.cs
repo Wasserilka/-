@@ -2,40 +2,34 @@
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Authorization;
 
 namespace Lesson_1_2.Security
 {
     public interface IAuthService
     {
-        AuthResponse Authenticate(int id);
-        RefreshToken RefreshToken(int id);
+        AuthResponse Authenticate(string id);
+        RefreshToken RefreshToken(string id);
     }
 
     internal sealed class AuthService : IAuthService
     {
         public const string SecretCode = "some secret_code";
 
-        public AuthResponse Authenticate(int id)
+        public AuthResponse Authenticate(string id)
         {
-            var authResponse = new AuthResponse();
-
-            authResponse.Id = id;
-            authResponse.Token = GenerateJwtToken(id, 15);
+            var token = GenerateJwtToken(id, 15);
             var refreshToken = GenerateRefreshToken(id, 360);
-            authResponse.RefreshToken = refreshToken;
+            var authResponse = new AuthResponse(refreshToken, token);
 
             return authResponse;
         }
 
-        public RefreshToken RefreshToken(int id)
+        public RefreshToken RefreshToken(string id)
         {
             return GenerateRefreshToken(id, 360);
         }
 
-        public RefreshToken GenerateRefreshToken(int id, int minutes)
+        public RefreshToken GenerateRefreshToken(string id, int minutes)
         {
             RefreshToken refreshToken = new RefreshToken();
             refreshToken.ExpirationDate = DateTime.Now.AddMinutes(minutes);
@@ -43,7 +37,7 @@ namespace Lesson_1_2.Security
             return refreshToken;
         }
 
-        private string GenerateJwtToken(int id, int minutes)
+        private string GenerateJwtToken(string id, int minutes)
         {
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
 
@@ -53,7 +47,7 @@ namespace Lesson_1_2.Security
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, id.ToString())
+                    new Claim(ClaimTypes.Name, id)
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(minutes),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
