@@ -1,6 +1,6 @@
 ﻿using Npgsql;
 
-namespace Lesson_1_2.Interfaces
+namespace Lesson_1_2.Connection
 {
     interface IConnectionManager
     {

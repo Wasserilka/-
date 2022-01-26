@@ -2,19 +2,22 @@
 using Microsoft.AspNetCore.Mvc;
 using System;
 using Lesson_1_2.Security;
-using Lesson_1_2.Models;
-using Lesson_1_2.Repositories;
+using Lesson_1_2.DAL.Models;
+using Lesson_1_2.DAL.Repositories;
+using Lesson_1_2.DAL.Responses;
+using Lesson_1_2.DAL.DTO;
+using Lesson_1_2.Requests;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Timesheets.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UsersController : ControllerBase
     {
         private IAuthService AuthService;
-        private IUserRepository Repository;
-        public UserController(IAuthService loginService, IUserRepository userRepository)
+        private IUsersRepository Repository;
+        public UsersController(IAuthService loginService, IUsersRepository userRepository)
         {
             AuthService = loginService;
             Repository = userRepository;
@@ -24,7 +27,9 @@ namespace Timesheets.Controllers
         [HttpPost("register")]
         public IActionResult Register([FromQuery] string login, string password)
         {
-            Repository.Signup(new User { Password = password, Login = login });
+            var request = new RegisterUserRequest(login, password);
+
+            Repository.Register(request);
 
             return Ok();
         }
@@ -33,10 +38,12 @@ namespace Timesheets.Controllers
         [HttpPost("authenticate")]
         public IActionResult Authenticate([FromQuery] string login, string password)
         {
-            var result = Repository.Signin(new User { Password = password, Login = login });
-            if (result != null)
+            var request = new AuthenticateUserRequest(login, password);
+            var result = Repository.Authenticate(request);
+
+            if (result != 0)
             {
-                var authResponse = AuthService.Authenticate(result.Id);
+                var authResponse = AuthService.Authenticate(result);
                 SetTokenCookie(authResponse.RefreshToken.Token);
                 Repository.UpdateToken(authResponse);
                 var token = new TokenResponse { Token = authResponse.Token, RefreshToken = authResponse.RefreshToken.Token };

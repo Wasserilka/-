@@ -1,8 +1,8 @@
 ﻿using Dapper;
-using Lesson_1_2.Models;
-using Lesson_1_2.Interfaces;
+using Lesson_1_2.DAL.Models;
+using Lesson_1_2.Connection;
 
-namespace Lesson_1_2.Repositories
+namespace Lesson_1_2.DAL.Repositories
 {
     public interface ICardsRepository
     {

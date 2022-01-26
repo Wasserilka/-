@@ -1,4 +1,4 @@
-﻿namespace Lesson_1_2.Models
+﻿namespace Lesson_1_2.DAL.Models
 {
     public class User
     {

@@ -1,7 +1,7 @@
 ﻿using System.Data;
 using Dapper;
 
-namespace Lesson_1_2.Models
+namespace Lesson_1_2.DAL.Models
 {
     public class DateTimeOffsetHandler : SqlMapper.TypeHandler<DateTimeOffset>
     {

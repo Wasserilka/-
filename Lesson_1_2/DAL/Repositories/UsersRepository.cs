@@ -1,38 +1,34 @@
 ﻿using Dapper;
-using Lesson_1_2.Models;
-using Lesson_1_2.Interfaces;
+using Lesson_1_2.DAL.Models;
+using Lesson_1_2.Connection;
 using Lesson_1_2.Security;
+using Lesson_1_2.Requests;
 
-namespace Lesson_1_2.Repositories
+namespace Lesson_1_2.DAL.Repositories
 {
-    public interface IUserRepository
+    public interface IUsersRepository
     {
-        User Signin(User user);
-        void Signup(User user);
+        int Authenticate(AuthenticateUserRequest request);
+        void Register(RegisterUserRequest request);
         void UpdateToken(AuthResponse response);
         void UpdateToken(int id, RefreshToken token);
         RefreshToken GetRefreshToken(string oldRefreshmentToken);
     }
 
-    public class UserRepository : IUserRepository
+    public class UsersRepository : IUsersRepository
     {
-        public UserRepository()
+        public UsersRepository()
         {
             SqlMapper.AddTypeHandler(new DateTimeOffsetHandler());
         }
 
-        public User Signin(User user)
+        public int Authenticate(AuthenticateUserRequest request)
         {
             using (var connection = new ConnectionManager().GetOpenedConnection())
             {
-                var result = connection.QueryFirstOrDefault<User>("SELECT id, password FROM users WHERE login=@login",
-                    new { login = user.Login });
-                if (result.Password == user.Password)
-                {
-                    return result;
-                }
+                return connection.QueryFirstOrDefault<int>("SELECT id FROM users WHERE login=@login AND password=@password",
+                    new { login = request.Login, password = request.Password });
             }
-            return null;
         }
 
         public void UpdateToken(AuthResponse response)
@@ -53,14 +49,14 @@ namespace Lesson_1_2.Repositories
             }
         }
 
-        public void Signup(User user)
+        public void Register(RegisterUserRequest request)
         {
             using (var connection = new ConnectionManager().GetOpenedConnection())
             {
                 connection.Execute("INSERT INTO users(login, password) VALUES(@login, @password)",
-                    new { login = user.Login, password = user.Password });
+                    new { login = request.Login, password = request.Password });
                 var id = connection.QueryFirstOrDefault<int>("SELECT id FROM users WHERE login=@login",
-                    new { login = user.Login });
+                    new { login = request.Login });
                 connection.Execute("INSERT INTO tokens(userid) VALUES(@userid)",
                     new { userid = id });
             }

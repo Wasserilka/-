@@ -1,5 +1,8 @@
-﻿using Lesson_1_2.Repositories;
-using Lesson_1_2.Interfaces;
+﻿using Lesson_1_2.DAL.Models;
+using Lesson_1_2.DAL.Repositories;
+using Lesson_1_2.DAL.Responses;
+using Lesson_1_2.DAL.DTO;
+using Lesson_1_2.Connection;
 using Lesson_1_2.Security;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -25,7 +28,7 @@ namespace Lesson_1_2
             services.AddSingleton<IConnectionManager, ConnectionManager>();
 
             services.AddSingleton<ICardsRepository, CardsRepository>();
-            services.AddSingleton<IUserRepository, UserRepository>();
+            services.AddSingleton<IUsersRepository, UsersRepository>();
 
             services.AddSingleton<IAuthService, AuthService>();
             services.AddCors();
