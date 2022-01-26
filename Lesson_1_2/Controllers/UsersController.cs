@@ -1,12 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using Microsoft.AspNetCore.Mvc;
 using Lesson_1_2.Security;
-using Lesson_1_2.DAL.Models;
 using Lesson_1_2.DAL.Repositories;
-using Lesson_1_2.DAL.Responses;
-using Lesson_1_2.DAL.DTO;
 using Lesson_1_2.Requests;
+using Lesson_1_2.Security.Responses;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Timesheets.Controllers

@@ -1,16 +1,17 @@
 ﻿using Dapper;
 using Lesson_1_2.DAL.Models;
 using Lesson_1_2.Connection;
+using Lesson_1_2.Requests;
 
 namespace Lesson_1_2.DAL.Repositories
 {
     public interface ICardsRepository
     {
         IList<Card> GetAll();
-        Card GetById(int id);
-        void Create(Card card);
-        void Update(int id, Card card);
-        void Delete(int id);
+        Card GetById(GetByIdCardRequest request);
+        void Create(CreateCardRequest request);
+        void Update(UpdateCardRequest request);
+        void Delete(DeleteCardRequest request);
     }
 
     public class CardsRepository : ICardsRepository
@@ -29,39 +30,39 @@ namespace Lesson_1_2.DAL.Repositories
             }
         }
 
-        public void Create(Card card)
+        public void Create(CreateCardRequest request)
         {
             using (var connection = new ConnectionManager().GetOpenedConnection())
             {
                 connection.Query<Card>("INSERT INTO cards(number, holdername, expirationdate, type) VALUES(@number, @holdername, @expirationdate, @type)",
-                    new { number = card.Number, holdername = card.HolderName, expirationdate = card.ExpirationDate.ToUnixTimeSeconds(), type = card.Type });
+                    new { number = request.Number, holdername = request.HolderName, expirationdate = request.ExpirationDate.ToUnixTimeSeconds(), type = request.Type });
             }
         }
 
-        public Card GetById(int id)
+        public Card GetById(GetByIdCardRequest request)
         {
             using (var connection = new ConnectionManager().GetOpenedConnection())
             {
                 return connection.QueryFirstOrDefault<Card>("SELECT * FROM cards WHERE id=@id",
-                    new { id = id });
+                    new { id = request.Id });
             }
         }
 
-        public void Update(int id, Card card)
+        public void Update(UpdateCardRequest request)
         {
             using (var connection = new ConnectionManager().GetOpenedConnection())
             {
                 connection.QueryFirstOrDefault<Card>("UPDATE cards SET number=@number, holdername=@holdername, expirationdate=@expirationdate, type=@type WHERE id=@id",
-                    new { id = id, number = card.Number, holdername = card.HolderName, expirationdate = card.ExpirationDate.ToUnixTimeSeconds(), type = card.Type });
+                    new { id = request.Id, number = request.Number, holdername = request.HolderName, expirationdate = request.ExpirationDate.ToUnixTimeSeconds(), type = request.Type });
             }
         }
 
-        public void Delete(int id)
+        public void Delete(DeleteCardRequest request)
         {
             using (var connection = new ConnectionManager().GetOpenedConnection())
             {
                 connection.QueryFirstOrDefault<Card>("DELETE FROM cards WHERE id=@id",
-                    new { id = id });
+                    new { id = request.Id });
             }
         }
     }

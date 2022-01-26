@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Lesson_1_2.DAL.Models;
 using Lesson_1_2.DAL.Repositories;
 using Lesson_1_2.DAL.Responses;
 using Lesson_1_2.DAL.DTO;
+using Lesson_1_2.Requests;
 using Microsoft.AspNetCore.Authorization;
 using AutoMapper;
 
@@ -43,7 +43,8 @@ namespace Lesson_1_2.Controllers
         [HttpGet("get/{id}")]
         public IActionResult GetById([FromRoute] int id)
         {
-            var card = Repository.GetById(id);
+            var request = new GetByIdCardRequest(id);
+            var card = Repository.GetById(request);
 
             var response = new GetAllCardsResponse()
             {
@@ -58,7 +59,9 @@ namespace Lesson_1_2.Controllers
         [HttpPost("create/{number}/{name}/{date}/{type}")]
         public IActionResult Create([FromRoute] long number, [FromRoute] string name, [FromRoute] DateTimeOffset date, [FromRoute] string type)
         {
-            Repository.Create(new Card { Number = number, HolderName = name, ExpirationDate = date, Type = type });
+            var request = new CreateCardRequest(number, name, date, type);
+
+            Repository.Create(request);
 
             return Ok();
         }
@@ -66,7 +69,9 @@ namespace Lesson_1_2.Controllers
         [HttpPut("update/{id}/{number}/{name}/{date}/{type}")]
         public IActionResult Update([FromRoute] int id, [FromRoute] long number, [FromRoute] string name, [FromRoute] DateTimeOffset date, [FromRoute] string type)
         {
-            Repository.Update(id, new Card { Number = number, HolderName = name, ExpirationDate = date, Type = type });
+            var request = new UpdateCardRequest(id, number, name, date, type);
+
+            Repository.Update(request);
 
             return Ok();
         }
@@ -74,7 +79,9 @@ namespace Lesson_1_2.Controllers
         [HttpDelete("delete/{id}")]
         public IActionResult Delete([FromRoute] int id)
         {
-            Repository.Delete(id);
+            var request = new DeleteCardRequest(id);
+
+            Repository.Delete(request);
 
             return Ok();
         }

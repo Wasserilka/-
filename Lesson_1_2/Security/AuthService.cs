@@ -2,6 +2,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+using Lesson_1_2.Security.Models;
+using Lesson_1_2.Security.Responses;
 
 namespace Lesson_1_2.Security
 {
