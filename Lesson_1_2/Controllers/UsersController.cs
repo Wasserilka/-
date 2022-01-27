@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Lesson_1_2.Security;
+using Lesson_1_2.Security.Service;
 using Lesson_1_2.DAL.Repositories;
 using Lesson_1_2.Requests;
 using Lesson_1_2.Security.Responses;
+using Lesson_1_2.Validation.Validators;
+using Lesson_1_2.Validation.Service;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Timesheets.Controllers
@@ -13,16 +15,32 @@ namespace Timesheets.Controllers
     {
         private IAuthService AuthService;
         private IUsersRepository Repository;
-        public UsersController(IAuthService loginService, IUsersRepository userRepository)
+        private IRegisterUserRequestValidator RegisterUserRequestValidator;
+        private IAuthenticateUserRequestValidator AuthenticateUserRequestValidator;
+        public UsersController(
+            IAuthService loginService, 
+            IUsersRepository userRepository,
+            IRegisterUserRequestValidator registerUserRequestValidator,
+            IAuthenticateUserRequestValidator authenticateUserRequestValidator)
         {
             AuthService = loginService;
             Repository = userRepository;
+            RegisterUserRequestValidator = registerUserRequestValidator;
+            AuthenticateUserRequestValidator = authenticateUserRequestValidator;
         }
 
         [AllowAnonymous]
         [HttpPost("register")]
         public IActionResult Register([FromQuery] string login, string password)
         {
+            var request = new RegisterUserRequest(login, password);
+            var validation = new OperationResult<RegisterUserRequest>(RegisterUserRequestValidator.ValidateEntity(request));
+
+            if (!validation.Succeed)
+            {
+                return BadRequest(validation);
+            }
+
             var loginExistenceRequest = new LoginExistenceRequest(login);
             var loginExistenceResult = Repository.IsLoginExists(loginExistenceRequest);
 
@@ -30,8 +48,6 @@ namespace Timesheets.Controllers
             {
                 return BadRequest(new { message = "Login already exists" });
             }
-
-            var request = new RegisterUserRequest(login, password);
 
             Repository.Register(request);
 
@@ -43,6 +59,13 @@ namespace Timesheets.Controllers
         public IActionResult Authenticate([FromQuery] string login, string password)
         {
             var request = new AuthenticateUserRequest(login, password);
+            var validation = new OperationResult<AuthenticateUserRequest>(AuthenticateUserRequestValidator.ValidateEntity(request));
+
+            if (!validation.Succeed)
+            {
+                return BadRequest(validation);
+            }
+
             var authResult = Repository.Authenticate(request);
 
             if (authResult)

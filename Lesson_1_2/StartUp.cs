@@ -1,6 +1,7 @@
 ﻿using Lesson_1_2.DAL.Repositories;
 using Lesson_1_2.Connection;
-using Lesson_1_2.Security;
+using Lesson_1_2.Security.Service;
+using Lesson_1_2.Validation.Validators;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -29,6 +30,14 @@ namespace Lesson_1_2
 
             services.AddSingleton<IAuthService, AuthService>();
             services.AddCors();
+
+            services.AddScoped<IRegisterUserRequestValidator, RegisterUserRequestValidator>();
+            services.AddScoped<IAuthenticateUserRequestValidator, AuthenticateUserRequestValidator>();
+
+            services.AddScoped<ICreateCardRequestValidator, CreateCardRequestValidator>();
+            services.AddScoped<IUpdateCardRequestValidator, UpdateCardRequestValidator>();
+            services.AddScoped<IDeleteCardRequestValidator, DeleteCardRequestValidator>();
+            services.AddScoped<IGetByIdCardRequestValidator, GetByIdCardRequestValidator>();
 
             services.AddAuthentication(x =>
             {
