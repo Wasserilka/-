@@ -73,7 +73,7 @@ namespace Timesheets.Controllers
                 var updateTokenRequest = new UpdateTokenRequest(login, authResponse.RefreshToken);
                 Repository.UpdateToken(updateTokenRequest);
 
-                var token = new TokenResponse (authResponse.Token, authResponse.RefreshToken.Token);
+                var token = new TokenResponse(authResponse.Token.ToString(), authResponse.RefreshToken.ToString());
                 return Ok(token);
             }
             else
