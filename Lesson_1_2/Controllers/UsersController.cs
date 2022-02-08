@@ -6,6 +6,7 @@ using Lesson_1_2.Security.Responses;
 using Lesson_1_2.Validation.Validators;
 using Lesson_1_2.Validation.Service;
 using Lesson_1_2.Handlers;
+using Lesson_1_2.Builders;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Timesheets.Controllers
@@ -73,8 +74,11 @@ namespace Timesheets.Controllers
                 var updateTokenRequest = new UpdateTokenRequest(login, authResponse.RefreshToken);
                 Repository.UpdateToken(updateTokenRequest);
 
-                var token = new TokenResponse(authResponse.Token.ToString(), authResponse.RefreshToken.ToString());
-                return Ok(token);
+                var builder = new TokenBuilder(authResponse);
+                builder.AddMainToken();
+                builder.AddRefreshToken();
+
+                return Ok(builder.GetResult());
             }
             else
             {
@@ -99,6 +103,7 @@ namespace Timesheets.Controllers
             Repository.UpdateToken(updateTokenRequest);
 
             SetTokenCookie(newRefreshToken.Token);
+
             return Ok(newRefreshToken);
         }
 

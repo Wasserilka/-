@@ -5,12 +5,12 @@ namespace Lesson_1_2.Security.Responses
     public class AuthResponse
     {
         public IToken RefreshToken { get; }
-        public IToken Token { get; }
+        public IToken MainToken { get; }
 
-        public AuthResponse(IToken refreshToken, IToken token)
+        public AuthResponse(IToken refreshToken, IToken mainToken)
         {
             RefreshToken = refreshToken;
-            Token = token;
+            MainToken = mainToken;
         }
     }
 }
