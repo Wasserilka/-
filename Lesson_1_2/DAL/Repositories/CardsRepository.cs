@@ -16,15 +16,16 @@ namespace Lesson_1_2.DAL.Repositories
 
     public class CardsRepository : ICardsRepository
     {
-
-        public CardsRepository()
+        private IConfiguration Configuration { get; set; }
+        public CardsRepository(IConfiguration configuration)
         {
+            Configuration = configuration;
             SqlMapper.AddTypeHandler(new DateTimeOffsetHandler());
         }
 
         public IList<Card> GetAll()
         {
-            using (var connection = new ConnectionManager().GetOpenedConnection())
+            using (var connection = new ConnectionManager(Configuration).GetOpenedConnection())
             {
                 return connection.Query<Card>("SELECT id, number, holdername, expirationdate, type FROM cards").AsList();
             }
@@ -32,7 +33,7 @@ namespace Lesson_1_2.DAL.Repositories
 
         public void Create(CreateCardRequest request)
         {
-            using (var connection = new ConnectionManager().GetOpenedConnection())
+            using (var connection = new ConnectionManager(Configuration).GetOpenedConnection())
             {
                 connection.Query<Card>("INSERT INTO cards(number, holdername, expirationdate, type) VALUES(@number, @holdername, @expirationdate, @type)",
                     new { number = request.Number, holdername = request.HolderName, expirationdate = request.ExpirationDate.ToUnixTimeSeconds(), type = request.Type });
@@ -41,7 +42,7 @@ namespace Lesson_1_2.DAL.Repositories
 
         public Card GetById(GetByIdCardRequest request)
         {
-            using (var connection = new ConnectionManager().GetOpenedConnection())
+            using (var connection = new ConnectionManager(Configuration).GetOpenedConnection())
             {
                 return connection.QueryFirstOrDefault<Card>("SELECT * FROM cards WHERE id=@id",
                     new { id = request.Id });
@@ -50,7 +51,7 @@ namespace Lesson_1_2.DAL.Repositories
 
         public void Update(UpdateCardRequest request)
         {
-            using (var connection = new ConnectionManager().GetOpenedConnection())
+            using (var connection = new ConnectionManager(Configuration).GetOpenedConnection())
             {
                 connection.QueryFirstOrDefault<Card>("UPDATE cards SET number=@number, holdername=@holdername, expirationdate=@expirationdate, type=@type WHERE id=@id",
                     new { id = request.Id, number = request.Number, holdername = request.HolderName, expirationdate = request.ExpirationDate.ToUnixTimeSeconds(), type = request.Type });
@@ -59,7 +60,7 @@ namespace Lesson_1_2.DAL.Repositories
 
         public void Delete(DeleteCardRequest request)
         {
-            using (var connection = new ConnectionManager().GetOpenedConnection())
+            using (var connection = new ConnectionManager(Configuration).GetOpenedConnection())
             {
                 connection.QueryFirstOrDefault<Card>("DELETE FROM cards WHERE id=@id",
                     new { id = request.Id });

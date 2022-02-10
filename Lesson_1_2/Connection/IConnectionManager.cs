@@ -6,7 +6,6 @@ namespace Lesson_1_2.Connection
     {
         public string ConnectionString { get; }
         public NpgsqlConnection Connection { get; set; }
-
         public NpgsqlConnection GetOpenedConnection();
     }
 
@@ -15,9 +14,9 @@ namespace Lesson_1_2.Connection
         public string ConnectionString { get; }
         public NpgsqlConnection Connection { get; set; }
 
-        public ConnectionManager()
+        public ConnectionManager(IConfiguration configuration)
         {
-            ConnectionString = "Host=localhost;Port=5432;Database=secure_dev;Username=postgres;Password=root;Timeout=180;Command Timeout=180;";
+            ConnectionString = configuration.GetConnectionString("DefaultConnection");
         }
 
         public NpgsqlConnection GetOpenedConnection()

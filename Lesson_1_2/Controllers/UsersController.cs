@@ -5,6 +5,8 @@ using Lesson_1_2.Requests;
 using Lesson_1_2.Security.Responses;
 using Lesson_1_2.Validation.Validators;
 using Lesson_1_2.Validation.Service;
+using Lesson_1_2.Handlers;
+using Lesson_1_2.Builders;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Timesheets.Controllers
@@ -34,19 +36,15 @@ namespace Timesheets.Controllers
         public IActionResult Register([FromQuery] string login, string password)
         {
             var request = new RegisterUserRequest(login, password);
-            var validation = new OperationResult<RegisterUserRequest>(RegisterUserRequestValidator.ValidateEntity(request));
 
-            if (!validation.Succeed)
+            var validationHandler = new ValidationHandler(RegisterUserRequestValidator);
+            var loginExistenceHandler = new LoginExistenceHandler(Repository);
+
+            validationHandler.SetNext(loginExistenceHandler);
+            var result = validationHandler.Handle(request);
+            if (result != null)
             {
-                return BadRequest(validation);
-            }
-
-            var loginExistenceRequest = new LoginExistenceRequest(login);
-            var loginExistenceResult = Repository.IsLoginExists(loginExistenceRequest);
-
-            if (loginExistenceResult)
-            {
-                return BadRequest(new { message = "Login already exists" });
+                return BadRequest(result);
             }
 
             Repository.Register(request);
@@ -76,8 +74,11 @@ namespace Timesheets.Controllers
                 var updateTokenRequest = new UpdateTokenRequest(login, authResponse.RefreshToken);
                 Repository.UpdateToken(updateTokenRequest);
 
-                var token = new TokenResponse (authResponse.Token, authResponse.RefreshToken.Token);
-                return Ok(token);
+                var builder = new TokenBuilder(authResponse);
+                builder.AddMainToken();
+                builder.AddRefreshToken();
+
+                return Ok(builder.GetResult());
             }
             else
             {
@@ -102,6 +103,7 @@ namespace Timesheets.Controllers
             Repository.UpdateToken(updateTokenRequest);
 
             SetTokenCookie(newRefreshToken.Token);
+
             return Ok(newRefreshToken);
         }
 
