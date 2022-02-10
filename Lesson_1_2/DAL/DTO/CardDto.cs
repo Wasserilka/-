@@ -1,4 +1,4 @@
-﻿namespace Lesson_1_2.Responses
+﻿namespace Lesson_1_2.DAL.DTO
 {
     public class CardDto
     {
