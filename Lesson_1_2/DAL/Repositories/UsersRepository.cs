@@ -3,6 +3,7 @@ using Lesson_1_2.DAL.Models;
 using Lesson_1_2.Connection;
 using Lesson_1_2.Requests;
 using Lesson_1_2.DAL.Responses;
+using Lesson_1_2.Security.Models;
 
 namespace Lesson_1_2.DAL.Repositories
 {
@@ -38,7 +39,7 @@ namespace Lesson_1_2.DAL.Repositories
             using (var connection = new ConnectionManager(Configuration).GetOpenedConnection())
             {
                 connection.Execute("UPDATE users SET token=@token, expirationdate=@expirationdate WHERE login=@login",
-                    new { login = request.Login, token = request.RefreshToken.Token, expirationdate = request.RefreshToken.ExpirationDate.ToUnixTimeSeconds() });
+                    new { login = request.Login, token = request.RefreshToken.Token, expirationdate = ((RefreshToken)request.RefreshToken).ExpirationDate.ToUnixTimeSeconds() });
             }
         }
 
