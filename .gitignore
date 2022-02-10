@@ -357,6 +357,3 @@ MigrationBackup/
 .ionide/
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudio
-
-# Appsettings.Development
-appsettings.Development.json

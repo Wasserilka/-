@@ -4,13 +4,13 @@ namespace Lesson_1_2.Security.Responses
 {
     public class AuthResponse
     {
-        public RefreshToken RefreshToken { get; }
-        public string Token { get; }
+        public IToken RefreshToken { get; }
+        public IToken MainToken { get; }
 
-        public AuthResponse(RefreshToken refreshToken, string token)
+        public AuthResponse(IToken refreshToken, IToken mainToken)
         {
             RefreshToken = refreshToken;
-            Token = token;
+            MainToken = mainToken;
         }
     }
 }

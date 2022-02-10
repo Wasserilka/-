@@ -58,7 +58,7 @@ namespace Lesson_1_2
                     };
                 });
 
-            using (var connection = new ConnectionManager().GetOpenedConnection())
+            using (var connection = new ConnectionManager(Configuration).GetOpenedConnection())
             {
                 connection.Execute("CREATE TABLE IF NOT EXISTS cards(id SERIAL PRIMARY KEY, number BIGINT, holdername TEXT, expirationdate BIGINT, type TEXT)");
                 connection.Execute("CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY, login TEXT, password TEXT, token TEXT, expirationdate BIGINT)");
