@@ -9,9 +9,9 @@ namespace Lesson_1_2.DAL.Repositories
 {
     public interface IBooksRepository
     {
-        IList<Card> GetAll();
-        Card GetById(GetByIdCardRequest request);
-        void Create(CreateCardRequest request);
+        IList<Book> GetAll();
+        Book GetById(GetByIdCardRequest request);
+        void Create(CreateBookRequest request);
         void Update(UpdateCardRequest request);
         void Delete(DeleteCardRequest request);
     }
@@ -25,19 +25,19 @@ namespace Lesson_1_2.DAL.Repositories
             SqlMapper.AddTypeHandler(new DateTimeOffsetHandler());
         }
 
-        public IList<Card> GetAll()
+        public IList<Book> GetAll()
         {
-
+            return null;
         }
 
-        public void Create(CreateCardRequest request)
+        public void Create(CreateBookRequest request)
         {
-
+            var connection = new ConnectionManager(Configuration, "MongoDB").GetOpenedConnection("local", "books");
         }
 
-        public Card GetById(GetByIdCardRequest request)
+        public Book GetById(GetByIdCardRequest request)
         {
-
+            return null;
         }
 
         public void Update(UpdateCardRequest request)

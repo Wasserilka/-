@@ -1,24 +1,22 @@
 ﻿using Npgsql;
-using MongoDB.Bson;
-using MongoDB.Driver;
 
 namespace Lesson_1_2.Connection
 {
-    interface IConnectionManager
+    public interface IPostgreSQLConnectionManager
     {
         public string ConnectionString { get; }
         public NpgsqlConnection Connection { get; set; }
         public NpgsqlConnection GetOpenedConnection();
     }
 
-    class ConnectionManager : IConnectionManager
+    public class PostgreSQLConnectionManager : IPostgreSQLConnectionManager
     {
         public string ConnectionString { get; }
         public NpgsqlConnection Connection { get; set; }
 
-        public ConnectionManager(IConfiguration configuration, string dataBase)
+        public PostgreSQLConnectionManager(IConfiguration configuration)
         {
-            ConnectionString = configuration.GetConnectionString(dataBase);
+            ConnectionString = configuration.GetConnectionString("PostgreSQL");
         }
 
         public NpgsqlConnection GetOpenedConnection()
@@ -26,11 +24,6 @@ namespace Lesson_1_2.Connection
             Connection = new NpgsqlConnection(ConnectionString);
             Connection.Open();
             return Connection;
-        }
-        public IMongoCollection<BsonDocument> GetOpenedConnection(string database, string collection)
-        {
-            var client = new MongoClient(ConnectionString);
-            return client.GetDatabase(database).GetCollection<BsonDocument>(collection);
         }
     }
 }

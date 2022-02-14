@@ -27,7 +27,7 @@ namespace Lesson_1_2.DAL.Repositories
 
         public bool Authenticate(AuthenticateUserRequest request)
         {
-            using (var connection = new ConnectionManager(Configuration, "PostgreSQL").GetOpenedConnection())
+            using (var connection = new PostgreSQLConnectionManager(Configuration).GetOpenedConnection())
             {
                 return connection.QueryFirstOrDefault<bool>("SELECT EXISTS (SELECT FROM users WHERE login=@login AND password=@password)",
                     new { login = request.Login, password = request.Password });
@@ -36,7 +36,7 @@ namespace Lesson_1_2.DAL.Repositories
 
         public void UpdateToken(UpdateTokenRequest request)
         {
-            using (var connection = new ConnectionManager(Configuration, "PostgreSQL").GetOpenedConnection())
+            using (var connection = new PostgreSQLConnectionManager(Configuration).GetOpenedConnection())
             {
                 connection.Execute("UPDATE users SET token=@token, expirationdate=@expirationdate WHERE login=@login",
                     new { login = request.Login, token = request.RefreshToken.Token, expirationdate = ((RefreshToken)request.RefreshToken).ExpirationDate.ToUnixTimeSeconds() });
@@ -45,7 +45,7 @@ namespace Lesson_1_2.DAL.Repositories
 
         public void Register(RegisterUserRequest request)
         {
-            using (var connection = new ConnectionManager(Configuration, "PostgreSQL").GetOpenedConnection())
+            using (var connection = new PostgreSQLConnectionManager(Configuration).GetOpenedConnection())
             {
                 connection.Execute("INSERT INTO users(login, password) VALUES(@login, @password)",
                     new { login = request.Login, password = request.Password });
@@ -54,7 +54,7 @@ namespace Lesson_1_2.DAL.Repositories
 
         public OldRefreshTokenResponse GetRefreshToken(GetRefreshTokenRequest request)
         {
-            using (var connection = new ConnectionManager(Configuration, "PostgreSQL").GetOpenedConnection())
+            using (var connection = new PostgreSQLConnectionManager(Configuration).GetOpenedConnection())
             {
                 return connection.QueryFirstOrDefault<OldRefreshTokenResponse>("SELECT login, expirationdate FROM users WHERE token=@oldtoken",
                     new { oldtoken = request.OldRefreshToken });
@@ -63,7 +63,7 @@ namespace Lesson_1_2.DAL.Repositories
 
         public bool IsLoginExists(LoginExistenceRequest request)
         {
-            using (var connection = new ConnectionManager(Configuration, "PostgreSQL").GetOpenedConnection())
+            using (var connection = new PostgreSQLConnectionManager(Configuration).GetOpenedConnection())
             {
                 return connection.QueryFirstOrDefault<bool>("SELECT EXISTS (SELECT FROM users WHERE login=@login)",
                     new { login = request.Login });

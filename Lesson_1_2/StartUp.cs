@@ -2,6 +2,7 @@
 using Lesson_1_2.Connection;
 using Lesson_1_2.Security.Service;
 using Lesson_1_2.Validation.Validators;
+using Lesson_1_2.DAL.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -23,7 +24,8 @@ namespace Lesson_1_2
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddSingleton<IConnectionManager, ConnectionManager>();
+            services.AddSingleton<IPostgreSQLConnectionManager, PostgreSQLConnectionManager>();
+            services.AddSingleton<IMongoDBConnectionManager, MongoDBConnectionManager>();
 
             services.AddSingleton<ICardsRepository, CardsRepository>();
             services.AddSingleton<IUsersRepository, UsersRepository>();
@@ -58,7 +60,7 @@ namespace Lesson_1_2
                     };
                 });
 
-            using (var connection = new ConnectionManager(Configuration).GetOpenedConnection())
+            using (var connection = new PostgreSQLConnectionManager(Configuration).GetOpenedConnection())
             {
                 connection.Execute("CREATE TABLE IF NOT EXISTS cards(id SERIAL PRIMARY KEY, number BIGINT, holdername TEXT, expirationdate BIGINT, type TEXT)");
                 connection.Execute("CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY, login TEXT, password TEXT, token TEXT, expirationdate BIGINT)");
