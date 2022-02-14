@@ -2,7 +2,6 @@
 using Lesson_1_2.Connection;
 using Lesson_1_2.Security.Service;
 using Lesson_1_2.Validation.Validators;
-using Lesson_1_2.DAL.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -27,6 +26,7 @@ namespace Lesson_1_2
             services.AddSingleton<IPostgreSQLConnectionManager, PostgreSQLConnectionManager>();
             services.AddSingleton<IMongoDBConnectionManager, MongoDBConnectionManager>();
 
+            services.AddSingleton<IBooksRepository, BooksRepository>();
             services.AddSingleton<ICardsRepository, CardsRepository>();
             services.AddSingleton<IUsersRepository, UsersRepository>();
 
@@ -40,6 +40,11 @@ namespace Lesson_1_2
             services.AddScoped<IUpdateCardRequestValidator, UpdateCardRequestValidator>();
             services.AddScoped<IDeleteCardRequestValidator, DeleteCardRequestValidator>();
             services.AddScoped<IGetByIdCardRequestValidator, GetByIdCardRequestValidator>();
+
+            services.AddScoped<ICreateBookRequestValidator, CreateBookRequestValidator>();
+            services.AddScoped<IUpdateBookRequestValidator, UpdateBookRequestValidator>();
+            services.AddScoped<IDeleteBookRequestValidator, DeleteBookRequestValidator>();
+            services.AddScoped<IGetByTitleBookRequestValidator, GetByTitleBookRequestValidator>();
 
             services.AddAuthentication(x =>
             {

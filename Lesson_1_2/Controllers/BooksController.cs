@@ -11,78 +11,69 @@ using AutoMapper;
 namespace Lesson_1_2.Controllers
 {
     [Route("api/books")]
-    [Authorize]
     [ApiController]
     public class BooksController : ControllerBase
     {
-        private ICardsRepository Repository;
+        private IBooksRepository Repository;
         private readonly IMapper Mapper;
-        private ICreateCardRequestValidator CreateCardRequestValidator;
-        private IUpdateCardRequestValidator UpdateCardRequestValidator;
-        private IDeleteCardRequestValidator DeleteCardRequestValidator;
-        private IGetByIdCardRequestValidator GetByIdCardRequestValidator;
+        private ICreateBookRequestValidator CreateBookRequestValidator;
+        private IUpdateBookRequestValidator UpdateBookRequestValidator;
+        private IDeleteBookRequestValidator DeleteBookRequestValidator;
+        private IGetByTitleBookRequestValidator GetByTitleBookRequestValidator;
         public BooksController(
-            ICardsRepository repository, 
+            IBooksRepository repository, 
             IMapper mapper,
-            ICreateCardRequestValidator createCardRequestValidator,
-            IUpdateCardRequestValidator updateCardRequestValidator,
-            IDeleteCardRequestValidator deleteCardRequestValidator,
-            IGetByIdCardRequestValidator getByIdCardRequestValidator)
+            ICreateBookRequestValidator createBookRequestValidator,
+            IUpdateBookRequestValidator updateBookRequestValidator,
+            IDeleteBookRequestValidator deleteBookRequestValidator,
+            IGetByTitleBookRequestValidator getByTitleBookRequestValidator)
         {
             Mapper = mapper;
             Repository = repository;
-            CreateCardRequestValidator = createCardRequestValidator;
-            UpdateCardRequestValidator = updateCardRequestValidator;
-            DeleteCardRequestValidator = deleteCardRequestValidator;
-            GetByIdCardRequestValidator = getByIdCardRequestValidator;
+            CreateBookRequestValidator = createBookRequestValidator;
+            UpdateBookRequestValidator = updateBookRequestValidator;
+            DeleteBookRequestValidator = deleteBookRequestValidator;
+            GetByTitleBookRequestValidator = getByTitleBookRequestValidator;
         }
 
         [HttpGet("get/all")]
         public IActionResult GetAll()
         {
-            var cards = Repository.GetAll();
+            var books = Repository.GetAll();
 
-            var response = new GetAllCardsResponse()
-            {
-                Cards = new List<CardDto>()
-            };
+            var response = new GetAllBooksResponse();
 
-            foreach (var card in cards)
+            foreach (var book in books)
             {
-                response.Cards.Add(Mapper.Map<CardDto>(card));
+                response.Books.Add(Mapper.Map<BookDto>(book));
             }
 
             return Ok(response);
         }
 
-        [HttpGet("get/{id}")]
-        public IActionResult GetById([FromRoute] int id)
+        [HttpGet("get/{title}")]
+        public IActionResult GetByTitle([FromRoute] string title)
         {
-            var request = new GetByIdCardRequest(id);
-            var validation = new OperationResult<GetByIdCardRequest>(GetByIdCardRequestValidator.ValidateEntity(request));
+            var request = new GetByTitleBookRequest(title);
+            var validation = new OperationResult<GetByTitleBookRequest>(GetByTitleBookRequestValidator.ValidateEntity(request));
 
             if (!validation.Succeed)
             {
                 return BadRequest(validation);
             }
 
-            var card = Repository.GetById(request);
+            var book = Repository.GetByTitle(request);
 
-            var response = new GetAllCardsResponse()
-            {
-                Cards = new List<CardDto>()
-            };
-
-            response.Cards.Add(Mapper.Map<CardDto>(card));
+            var response = new GetByTitleBookResponse(Mapper.Map<BookDto>(book));
 
             return Ok(response);
         }
 
-        [HttpPost("create/{number}/{name}/{date}/{type}")]
-        public IActionResult Create([FromRoute] long number, [FromRoute] string name, [FromRoute] DateTimeOffset date, [FromRoute] string type)
+        [HttpPost("create/{title}/{author}/{date}")]
+        public IActionResult Create([FromRoute] string title, [FromRoute] string author, [FromRoute] DateTimeOffset date)
         {
-            var request = new CreateCardRequest(number, name, date, type);
-            var validation = new OperationResult<CreateCardRequest>(CreateCardRequestValidator.ValidateEntity(request));
+            var request = new CreateBookRequest(title, author, date);
+            var validation = new OperationResult<CreateBookRequest>(CreateBookRequestValidator.ValidateEntity(request));
 
             if (!validation.Succeed)
             {
@@ -94,11 +85,11 @@ namespace Lesson_1_2.Controllers
             return Ok();
         }
 
-        [HttpPut("update/{id}/{number}/{name}/{date}/{type}")]
-        public IActionResult Update([FromRoute] int id, [FromRoute] long number, [FromRoute] string name, [FromRoute] DateTimeOffset date, [FromRoute] string type)
+        [HttpPut("update/{title}/{new_title}/{new_author}/{new_date}")]
+        public IActionResult Update([FromRoute] string title, [FromRoute] string new_title, [FromRoute] string new_author, [FromRoute] DateTimeOffset new_date)
         {
-            var request = new UpdateCardRequest(id, number, name, date, type);
-            var validation = new OperationResult<UpdateCardRequest>(UpdateCardRequestValidator.ValidateEntity(request));
+            var request = new UpdateBookRequest(title, new_title, new_author, new_date);
+            var validation = new OperationResult<UpdateBookRequest>(UpdateBookRequestValidator.ValidateEntity(request));
 
             if (!validation.Succeed)
             {
@@ -110,11 +101,11 @@ namespace Lesson_1_2.Controllers
             return Ok();
         }
 
-        [HttpDelete("delete/{id}")]
-        public IActionResult Delete([FromRoute] int id)
+        [HttpDelete("delete/{title}")]
+        public IActionResult Delete([FromRoute] string title)
         {
-            var request = new DeleteCardRequest(id);
-            var validation = new OperationResult<DeleteCardRequest>(DeleteCardRequestValidator.ValidateEntity(request));
+            var request = new DeleteBookRequest(title);
+            var validation = new OperationResult<DeleteBookRequest>(DeleteBookRequestValidator.ValidateEntity(request));
 
             if (!validation.Succeed)
             {

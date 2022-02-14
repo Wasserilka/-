@@ -4,16 +4,17 @@ using Lesson_1_2.Connection;
 using Lesson_1_2.Requests;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Bson.Serialization;
 
 namespace Lesson_1_2.DAL.Repositories
 {
     public interface IBooksRepository
     {
         IList<Book> GetAll();
-        Book GetById(GetByIdCardRequest request);
+        Book GetByTitle(GetByTitleBookRequest request);
         void Create(CreateBookRequest request);
-        void Update(UpdateCardRequest request);
-        void Delete(DeleteCardRequest request);
+        void Update(UpdateBookRequest request);
+        void Delete(DeleteBookRequest request);
     }
 
     public class BooksRepository : IBooksRepository
@@ -27,27 +28,34 @@ namespace Lesson_1_2.DAL.Repositories
 
         public IList<Book> GetAll()
         {
-            return null;
+            var connection = new MongoDBConnectionManager(Configuration).GetOpenedConnection("local", "books");
+            var result = connection.Find(new BsonDocument()).ToList();
+            return result.Select(o => BsonSerializer.Deserialize<Book>(o)).ToList();
         }
 
         public void Create(CreateBookRequest request)
         {
-            var connection = new ConnectionManager(Configuration, "MongoDB").GetOpenedConnection("local", "books");
+            var connection = new MongoDBConnectionManager(Configuration).GetOpenedConnection("local", "books");
+            connection.InsertOne(request.ToBsonDocument());
         }
 
-        public Book GetById(GetByIdCardRequest request)
+        public Book GetByTitle(GetByTitleBookRequest request)
         {
-            return null;
+            var connection = new MongoDBConnectionManager(Configuration).GetOpenedConnection("local", "books");
+            var result = connection.Find(request.ToBsonDocument()).FirstOrDefault();
+            return result != null ? BsonSerializer.Deserialize<Book>(result) : null;
         }
 
-        public void Update(UpdateCardRequest request)
+        public void Update(UpdateBookRequest request)
         {
-
+            var connection = new MongoDBConnectionManager(Configuration).GetOpenedConnection("local", "books");
+            connection.ReplaceOne(new BsonDocument("Title", request.Title), request.Book.ToBsonDocument());
         }
 
-        public void Delete(DeleteCardRequest request)
+        public void Delete(DeleteBookRequest request)
         {
-
+            var connection = new MongoDBConnectionManager(Configuration).GetOpenedConnection("local", "books");
+            connection.DeleteOneAsync(request.ToBsonDocument());
         }
     }
 }
