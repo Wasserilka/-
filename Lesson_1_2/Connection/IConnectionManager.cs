@@ -1,4 +1,6 @@
 ﻿using Npgsql;
+using MongoDB.Bson;
+using MongoDB.Driver;
 
 namespace Lesson_1_2.Connection
 {
@@ -14,9 +16,9 @@ namespace Lesson_1_2.Connection
         public string ConnectionString { get; }
         public NpgsqlConnection Connection { get; set; }
 
-        public ConnectionManager(IConfiguration configuration)
+        public ConnectionManager(IConfiguration configuration, string dataBase)
         {
-            ConnectionString = configuration.GetConnectionString("DefaultConnection");
+            ConnectionString = configuration.GetConnectionString(dataBase);
         }
 
         public NpgsqlConnection GetOpenedConnection()
@@ -24,6 +26,11 @@ namespace Lesson_1_2.Connection
             Connection = new NpgsqlConnection(ConnectionString);
             Connection.Open();
             return Connection;
+        }
+        public IMongoCollection<BsonDocument> GetOpenedConnection(string database, string collection)
+        {
+            var client = new MongoClient(ConnectionString);
+            return client.GetDatabase(database).GetCollection<BsonDocument>(collection);
         }
     }
 }
