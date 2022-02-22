@@ -42,10 +42,7 @@ namespace Lesson_1_2.Controllers
         {
             var cards = Repository.GetAll();
 
-            var response = new GetAllCardsResponse()
-            {
-                Cards = new List<CardDto>()
-            };
+            var response = new GetAllCardsResponse();
 
             foreach (var card in cards)
             {
@@ -68,12 +65,7 @@ namespace Lesson_1_2.Controllers
 
             var card = Repository.GetById(request);
 
-            var response = new GetAllCardsResponse()
-            {
-                Cards = new List<CardDto>()
-            };
-
-            response.Cards.Add(Mapper.Map<CardDto>(card));
+            var response = new GetByIdCardResponse(Mapper.Map<CardDto>(card));
 
             return Ok(response);
         }

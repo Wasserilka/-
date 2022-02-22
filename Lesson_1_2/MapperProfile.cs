@@ -9,6 +9,7 @@ namespace Lesson_1_2
         public MapperProfile()
         {
             CreateMap<Card, CardDto>();
+            CreateMap<Book, BookDto>();
         }
     }
 }

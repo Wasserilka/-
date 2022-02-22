@@ -23,8 +23,10 @@ namespace Lesson_1_2
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddSingleton<IConnectionManager, ConnectionManager>();
+            services.AddSingleton<IPostgreSQLConnectionManager, PostgreSQLConnectionManager>();
+            services.AddSingleton<IMongoDBConnectionManager, MongoDBConnectionManager>();
 
+            services.AddSingleton<IBooksRepository, BooksRepository>();
             services.AddSingleton<ICardsRepository, CardsRepository>();
             services.AddSingleton<IUsersRepository, UsersRepository>();
 
@@ -38,6 +40,11 @@ namespace Lesson_1_2
             services.AddScoped<IUpdateCardRequestValidator, UpdateCardRequestValidator>();
             services.AddScoped<IDeleteCardRequestValidator, DeleteCardRequestValidator>();
             services.AddScoped<IGetByIdCardRequestValidator, GetByIdCardRequestValidator>();
+
+            services.AddScoped<ICreateBookRequestValidator, CreateBookRequestValidator>();
+            services.AddScoped<IUpdateBookRequestValidator, UpdateBookRequestValidator>();
+            services.AddScoped<IDeleteBookRequestValidator, DeleteBookRequestValidator>();
+            services.AddScoped<IGetByTitleBookRequestValidator, GetByTitleBookRequestValidator>();
 
             services.AddAuthentication(x =>
             {
@@ -58,7 +65,7 @@ namespace Lesson_1_2
                     };
                 });
 
-            using (var connection = new ConnectionManager(Configuration).GetOpenedConnection())
+            using (var connection = new PostgreSQLConnectionManager(Configuration).GetOpenedConnection())
             {
                 connection.Execute("CREATE TABLE IF NOT EXISTS cards(id SERIAL PRIMARY KEY, number BIGINT, holdername TEXT, expirationdate BIGINT, type TEXT)");
                 connection.Execute("CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY, login TEXT, password TEXT, token TEXT, expirationdate BIGINT)");

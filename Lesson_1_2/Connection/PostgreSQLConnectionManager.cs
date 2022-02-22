@@ -2,21 +2,21 @@
 
 namespace Lesson_1_2.Connection
 {
-    interface IConnectionManager
+    public interface IPostgreSQLConnectionManager
     {
         public string ConnectionString { get; }
         public NpgsqlConnection Connection { get; set; }
         public NpgsqlConnection GetOpenedConnection();
     }
 
-    class ConnectionManager : IConnectionManager
+    public class PostgreSQLConnectionManager : IPostgreSQLConnectionManager
     {
         public string ConnectionString { get; }
         public NpgsqlConnection Connection { get; set; }
 
-        public ConnectionManager(IConfiguration configuration)
+        public PostgreSQLConnectionManager(IConfiguration configuration)
         {
-            ConnectionString = configuration.GetConnectionString("DefaultConnection");
+            ConnectionString = configuration.GetConnectionString("PostgreSQL");
         }
 
         public NpgsqlConnection GetOpenedConnection()
