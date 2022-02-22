@@ -12,6 +12,7 @@ namespace Lesson_1_2.DAL.Repositories
     {
         IList<Book> GetAll();
         Book GetByTitle(GetByTitleBookRequest request);
+        Book GetByAuthor(GetByAuthorBookRequest request);
         void Create(CreateBookRequest request);
         void Update(UpdateBookRequest request);
         void Delete(DeleteBookRequest request);
@@ -41,9 +42,24 @@ namespace Lesson_1_2.DAL.Repositories
 
         public Book GetByTitle(GetByTitleBookRequest request)
         {
-            var connection = new MongoDBConnectionManager(Configuration).GetOpenedConnection("local", "books");
-            var result = connection.Find(request.ToBsonDocument()).FirstOrDefault();
-            return result != null ? BsonSerializer.Deserialize<Book>(result) : null;
+            var connection = new ElasticSearchConnectionManager(Configuration).GetOpenedConnection();
+            var result = connection.Search<Book>(s => s
+            .Query(sq => sq
+            .Match(m => m
+            .Field(f => f.Title)
+            .Query(request.Title))));
+            return result.Documents.FirstOrDefault();
+        }
+
+        public Book GetByAuthor(GetByAuthorBookRequest request)
+        {
+            var connection = new ElasticSearchConnectionManager(Configuration).GetOpenedConnection();
+            var result = connection.Search<Book>(s => s
+            .Query(sq => sq
+            .Match(m => m
+            .Field(f => f.Title)
+            .Query(request.Author))));
+            return result.Documents.FirstOrDefault();
         }
 
         public void Update(UpdateBookRequest request)

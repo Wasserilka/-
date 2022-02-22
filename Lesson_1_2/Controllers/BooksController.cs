@@ -11,6 +11,7 @@ using AutoMapper;
 namespace Lesson_1_2.Controllers
 {
     [Route("api/books")]
+    [Authorize]
     [ApiController]
     public class BooksController : ControllerBase
     {
@@ -20,13 +21,15 @@ namespace Lesson_1_2.Controllers
         private IUpdateBookRequestValidator UpdateBookRequestValidator;
         private IDeleteBookRequestValidator DeleteBookRequestValidator;
         private IGetByTitleBookRequestValidator GetByTitleBookRequestValidator;
+        private IGetByAuthorBookRequestValidator GetByAuthorBookRequestValidator;
         public BooksController(
             IBooksRepository repository, 
             IMapper mapper,
             ICreateBookRequestValidator createBookRequestValidator,
             IUpdateBookRequestValidator updateBookRequestValidator,
             IDeleteBookRequestValidator deleteBookRequestValidator,
-            IGetByTitleBookRequestValidator getByTitleBookRequestValidator)
+            IGetByTitleBookRequestValidator getByTitleBookRequestValidator,
+            IGetByAuthorBookRequestValidator getByAuthorBookRequestValidator)
         {
             Mapper = mapper;
             Repository = repository;
@@ -34,6 +37,7 @@ namespace Lesson_1_2.Controllers
             UpdateBookRequestValidator = updateBookRequestValidator;
             DeleteBookRequestValidator = deleteBookRequestValidator;
             GetByTitleBookRequestValidator = getByTitleBookRequestValidator;
+            GetByAuthorBookRequestValidator = getByAuthorBookRequestValidator;
         }
 
         [HttpGet("get/all")]
@@ -51,7 +55,7 @@ namespace Lesson_1_2.Controllers
             return Ok(response);
         }
 
-        [HttpGet("get/{title}")]
+        [HttpGet("get/title/{title}")]
         public IActionResult GetByTitle([FromRoute] string title)
         {
             var request = new GetByTitleBookRequest(title);
@@ -65,6 +69,24 @@ namespace Lesson_1_2.Controllers
             var book = Repository.GetByTitle(request);
 
             var response = new GetByTitleBookResponse(Mapper.Map<BookDto>(book));
+
+            return Ok(response);
+        }
+
+        [HttpGet("get/author/{author}")]
+        public IActionResult GetByAuthor([FromRoute] string author)
+        {
+            var request = new GetByAuthorBookRequest(author);
+            var validation = new OperationResult<GetByAuthorBookRequest>(GetByAuthorBookRequestValidator.ValidateEntity(request));
+
+            if (!validation.Succeed)
+            {
+                return BadRequest(validation);
+            }
+
+            var book = Repository.GetByAuthor(request);
+
+            var response = new GetByAuthorBookResponse(Mapper.Map<BookDto>(book));
 
             return Ok(response);
         }
