@@ -57,7 +57,7 @@ namespace Lesson_1_2.DAL.Repositories
             var result = connection.Search<Book>(s => s
             .Query(sq => sq
             .Match(m => m
-            .Field(f => f.Title)
+            .Field(f => f.Author)
             .Query(request.Author))));
             return result.Documents.FirstOrDefault();
         }
