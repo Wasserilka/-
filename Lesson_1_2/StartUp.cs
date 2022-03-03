@@ -3,7 +3,7 @@ using Lesson_1_2.Connection;
 using Lesson_1_2.Security.Service;
 using Lesson_1_2.Validation.Validators;
 using Lesson_1_2.DAL.Models;
-using Lesson_1_2.DAL.Responses;
+using Lesson_1_2.Consul;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -14,6 +14,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Bson.Serialization;
 using Nest;
+using Consul;
 
 namespace Lesson_1_2
 {
@@ -53,6 +54,13 @@ namespace Lesson_1_2
             services.AddScoped<IDeleteBookRequestValidator, DeleteBookRequestValidator>();
             services.AddScoped<IGetByTitleBookRequestValidator, GetByTitleBookRequestValidator>();
             services.AddScoped<IGetByAuthorBookRequestValidator, GetByAuthorBookRequestValidator>();
+
+            services.AddSingleton<IConsulClient, ConsulClient>(p => new ConsulClient(consulConfig =>
+            {
+                consulConfig.Address = new Uri("http://localhost:8500");
+            }));
+            services.AddHostedService<ConsulHostedService>();
+            services.AddHealthChecks();
 
             services.AddAuthentication(x =>
             {
@@ -149,6 +157,8 @@ namespace Lesson_1_2
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .AllowCredentials());
+
+            app.UseHealthChecks("/healthz");
 
             app.UseAuthentication();
 
