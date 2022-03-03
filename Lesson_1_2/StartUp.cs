@@ -2,12 +2,19 @@
 using Lesson_1_2.Connection;
 using Lesson_1_2.Security.Service;
 using Lesson_1_2.Validation.Validators;
+using Lesson_1_2.DAL.Models;
+using Lesson_1_2.Consul;
 using AutoMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Dapper;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using MongoDB.Bson.Serialization;
+using Nest;
+using Consul;
 
 namespace Lesson_1_2
 {
@@ -25,6 +32,7 @@ namespace Lesson_1_2
             services.AddControllers();
             services.AddSingleton<IPostgreSQLConnectionManager, PostgreSQLConnectionManager>();
             services.AddSingleton<IMongoDBConnectionManager, MongoDBConnectionManager>();
+            services.AddSingleton<IElasticSearchConnectionManager, ElasticSearchConnectionManager>();
 
             services.AddSingleton<IBooksRepository, BooksRepository>();
             services.AddSingleton<ICardsRepository, CardsRepository>();
@@ -45,6 +53,14 @@ namespace Lesson_1_2
             services.AddScoped<IUpdateBookRequestValidator, UpdateBookRequestValidator>();
             services.AddScoped<IDeleteBookRequestValidator, DeleteBookRequestValidator>();
             services.AddScoped<IGetByTitleBookRequestValidator, GetByTitleBookRequestValidator>();
+            services.AddScoped<IGetByAuthorBookRequestValidator, GetByAuthorBookRequestValidator>();
+
+            services.AddSingleton<IConsulClient, ConsulClient>(p => new ConsulClient(consulConfig =>
+            {
+                consulConfig.Address = new Uri("http://localhost:8500");
+            }));
+            services.AddHostedService<ConsulHostedService>();
+            services.AddHealthChecks();
 
             services.AddAuthentication(x =>
             {
@@ -74,6 +90,24 @@ namespace Lesson_1_2
             var mapperConfiguration = new MapperConfiguration(mp => mp.AddProfile(new MapperProfile()));
             var mapper = mapperConfiguration.CreateMapper();
             services.AddSingleton(mapper);
+
+            var elasticSearchConnection = new ElasticSearchConnectionManager(Configuration).GetOpenedConnection();
+            if (!elasticSearchConnection.Indices.Exists("books").Exists)
+            {
+                var elasticSearchIndexSettings = new IndexSettings { NumberOfReplicas = 1, NumberOfShards = 2 };
+                var resp = elasticSearchConnection.Indices.Create("books", c => c
+                .InitializeUsing(new IndexState { Settings = elasticSearchIndexSettings })
+                .Map<Book>(mp => mp.AutoMap()));
+            }
+
+            var mongoDBConnection = new MongoDBConnectionManager(Configuration).GetOpenedConnection("local", "books");
+            var mongoDBData = mongoDBConnection.Find(new BsonDocument()).ToList()
+                .Select(o => BsonSerializer.Deserialize<Book>(o)).ToList();
+
+            foreach (var book in mongoDBData)
+            {
+                elasticSearchConnection.IndexDocument(book);
+            }
 
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(c => 
@@ -123,6 +157,8 @@ namespace Lesson_1_2
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .AllowCredentials());
+
+            app.UseHealthChecks("/healthz");
 
             app.UseAuthentication();
 
